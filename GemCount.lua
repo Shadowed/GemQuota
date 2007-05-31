@@ -1,9 +1,9 @@
+-- When i'm not lazy i'll de-Dongle this, not really needed.
 GemCount = DongleStub("Dongle-1.0"):New( "GemCount" );
 
 local L = GemCountLocals;
 
 local ColorByLocal = {};
-
 local GemTotals = {};
 local GemByName = {};
 local GemStats = {}
@@ -170,7 +170,7 @@ function GemCount:UpdatePaperdollGems()
 		label:SetText( L["TYPES"][ gem.color ] );
 		stat:SetText( gem.count );
 		
-		row.tooltip = self:WrapColor( gem.color, L["TYPES"][ gem.color ] ) .. " " .. HIGHLIGHT_FONT_COLOR_CODE .. L["Gem Stats"] ..FONT_COLOR_CODE_CLOSE;
+		row.tooltip = gem.color .. " " .. HIGHLIGHT_FONT_COLOR_CODE .. L["Gem Stats"] ..FONT_COLOR_CODE_CLOSE;
 		
 		local list = {};
 		for name, total in pairs( GemStats[ gem.color ] ) do
