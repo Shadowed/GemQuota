@@ -217,13 +217,15 @@ function GemCount:AddGemColor( color, statName, statAmount )
 end
 
 function GemCount:ParseStat( text )
+	text = string.trim( text )
+	
 	if( string.find( text, L["\+([0-9]+) ([^!]+)"] ) ) then
 		local _, _, amount, name = string.find( text, L["\+([0-9]+) ([^!]+)"] );
-		return name, tonumber( amount );
+		return string.trim( name ), tonumber( amount );
 	
 	elseif( string.find( text, L["([^!]+) \+([0-9]+)"] ) ) then
 		local _, _, name, amount = string.find( text, L["([^!]+) \+([0-9]+)"] );
-		return name, tonumber( amount );
+		return string.trim( name ), tonumber( amount );
 	end
 	
 	return nil, nil;
