@@ -1,9 +1,6 @@
 ## Interface: 20100
 ## Title: Gem Counter
 ## Notes: Counts the number of gems you're using by color
-## SavedVariables: GemCountDB
-
-Dongle.lua
 
 localization.enUS.lua
 localization.deDE.lua
