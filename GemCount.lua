@@ -1,6 +1,6 @@
 GemCount = {}
+GemCount.frame = CreateFrame("Frame")
 
-local frame
 local L = GemCountLocals
 
 local ColorByLocal = {}
@@ -41,13 +41,13 @@ function GemCount:Enable()
 		GemCount.ScanItems(GemCount)
 		GemCount.UpdatePaperdollGems(GemCount)
 
-		frame:RegisterEvent("PLAYER_DAMAGE_DONE_MODS")
-		frame:RegisterEvent("UNIT_STATS")
+		GemCount.frame:RegisterEvent("PLAYER_DAMAGE_DONE_MODS")
+		GemCount.frame:RegisterEvent("UNIT_STATS")
 	end)
 	
 	PaperDollFrame:HookScript("OnHide", function()
-		GemCount:UnregisterEvent("PLAYER_DAMAGE_DONE_MODS")
-		GemCount:UnregisterEvent("UNIT_STATS")
+		GemCount.frame:UnregisterEvent("PLAYER_DAMAGE_DONE_MODS")
+		GemCount.frame:UnregisterEvent("UNIT_STATS")
 	end)
 end
 
@@ -118,7 +118,7 @@ function GemCount:UpdatePaperdollGems()
 		label:SetText( L["TYPES"][ gem.color ] )
 		stat:SetText( gem.count )
 		
-		row.tooltip = gem.color .. " " .. HIGHLIGHT_FONT_COLOR_CODE .. L["Gem Stats"] ..FONT_COLOR_CODE_CLOSE
+		row.tooltip = HIGHLIGHT_FONT_COLOR_CODE .. gem.color .. " " .. L["Gem Stats"] ..FONT_COLOR_CODE_CLOSE
 		
 		local list = {}
 		for name, total in pairs( GemStats[ gem.color ] ) do
@@ -319,8 +319,7 @@ function GemCount:ScanItems()
 	table.sort( GemTotals, SortGems )
 end
 
-local frame = CreateFrame("Frame")
-frame:SetScript("OnEvent", function(self, event, addon)
+GemCount.frame:SetScript("OnEvent", function(self, event, addon)
 	if( event == "ADDON_LOADED" and addon == "GemCount" ) then
 		GemCount.Enable(GemCount)
 	elseif( event == "PLAYER_DAMAGE_DONE_MODS" or event == "UNIT_STATS" ) then
@@ -328,4 +327,4 @@ frame:SetScript("OnEvent", function(self, event, addon)
 		GemCount.UpdatePaperdollGems(GemCount)
 	end
 end)
-frame:RegisterEvent("ADDON_LOADED")
+GemCount.frame:RegisterEvent("ADDON_LOADED")
