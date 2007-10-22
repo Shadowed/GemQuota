@@ -242,29 +242,30 @@ function GemCount:ScanGem( itemLink )
 		
 		if( string.find( stat, L["(.+) and (.+)"] ) ) then
 			_, _, stat1, stat2 = string.find( stat, L["(.+) and (.+)"] )
-			
+		elseif( string.find(stat, L["(.+) & (.+)"] ) ) then
+			_, _, stat1, stat2 = string.find(stat, L["(.+) & (.+)"])
 		elseif( string.find( stat, L["(.+), (.+)"] ) ) then
 			_, _, stat1, stat2 = string.find( stat, L["(.+), (.+)"] )
 		end
 		
 		local name1, amount1 = self:ParseStat( stat1 )
 		local name2, amount2 = self:ParseStat( stat2 )
-		
+				
 		--[[
 		It's annoying, but the gem color and stats don't always match up
-		hit is yelow, AGI is red.
+		hit is yellow, AGI is red.
 
 		Glinting Noble Topaz 
 		+4 Hit Rating and +4 Agility
 		"Matches a Red or Yellow Socket." 
 		]]
-		
-		if( L["STATS"][ color1 ][ name1 ] ) then
-			self:AddGemColor( color1, L["STATS"][ color1 ][ name1 ], amount1 )
-			self:AddGemColor( color2, L["STATS"][ color2 ][ name2 ], amount2 )
+				
+		if( L["STATS"][ color1 ][ string.lower(name1) ] ) then
+			self:AddGemColor( color1, L["STATS"][ color1 ][ string.lower(name1) ], amount1 )
+			self:AddGemColor( color2, L["STATS"][ color2 ][ string.lower(name2) ], amount2 )
 		else
-			self:AddGemColor( color1, L["STATS"][ color1 ][ name2 ], amount2 )
-			self:AddGemColor( color2, L["STATS"][ color2 ][ name1 ], amount1 )
+			self:AddGemColor( color1, L["STATS"][ color1 ][ string.lower(name2) ], amount2 )
+			self:AddGemColor( color2, L["STATS"][ color2 ][ string.lower(name1) ], amount1 )
 		end
 		
 	-- Regular gem
@@ -316,6 +317,7 @@ function GemCount:ScanItems()
 		end
 	end
 
+	GemCount:ScanGem(select(2,GetItemInfo(23109)))
 	table.sort( GemTotals, SortGems )
 end
 
