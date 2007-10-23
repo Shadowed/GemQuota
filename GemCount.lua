@@ -317,7 +317,6 @@ function GemCount:ScanItems()
 		end
 	end
 
-	GemCount:ScanGem(select(2,GetItemInfo(23109)))
 	table.sort( GemTotals, SortGems )
 end
 
