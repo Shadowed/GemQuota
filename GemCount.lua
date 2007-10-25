@@ -273,7 +273,7 @@ function GemCount:ScanGem( itemLink )
 		local _, _, color = string.find( text, L["Matches a (.+) Socket"] )
 		local name, amount = self:ParseStat( stat )
 		
-		self:AddGemColor( ColorByLocal[ color ], L["STATS"][ color ][ name ], amount )
+		self:AddGemColor( ColorByLocal[ color ], L["STATS"][ color ][ string.lower(name) ], amount )
 	end
 	
 end
