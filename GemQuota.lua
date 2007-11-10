@@ -109,7 +109,7 @@ function GemQuota:UpdatePaperdollGems()
 				local haveCount = 0
 				for _, gem in pairs(gemCount) do
 					if( gem.color == req.color ) then
-						haveCount = gem.color
+						haveCount = gem.count
 						break
 					end
 				end
