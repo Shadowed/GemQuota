@@ -1,6 +1,6 @@
 if( GetLocale() ~= "deDE" ) then
-	return;
+	return
 end
 
-GemCountLocals = setmetatable( {
-}, { __index = GemCountLocals } );
+GemQuotaLocals = setmetatable({
+}, {__index = GemQuotaLocals })

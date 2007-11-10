@@ -1,8 +1,6 @@
 if( GetLocale() ~= "frFR" ) then
-	return;
+	return
 end
 
-GemCountLocals = setmetatable( {
-
-}, { __index = GemCountLocals } );
-
+GemQuotaLocals = setmetatable({
+}, {__index = GemQuotaLocals })

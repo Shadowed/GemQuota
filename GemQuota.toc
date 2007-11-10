@@ -1,0 +1,11 @@
+## Interface: 20300
+## Title: Gem Quota
+## Version: $Revison
+## Author: Mayen
+## Notes: Shows number of gems in the character screen, including stats (and rating percentages) along with meta gem info
+
+localization.enUS.lua
+localization.deDE.lua
+localization.frFR.lua
+
+GemQuota.lua
