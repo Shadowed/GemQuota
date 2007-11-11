@@ -28,14 +28,14 @@ function GemQuota:Print(msg)
 end
 
 function GemQuota:Enable()
-	self.tooltip = CreateFrame("GameTooltip", "gemCountTooltip", UIParent, "GameTooltipTemplate")
+	self.tooltip = CreateFrame("GameTooltip", "GemQuotaTooltip", self.frame, "GameTooltipTemplate")
 	self.tooltip:SetOwner(self.frame, "ANCHOR_NONE")
 
 	PLAYERSTAT_GEM_INFO = L["Gem Info"]
 	table.insert(PLAYERSTAT_DROPDOWN_OPTIONS, "PLAYERSTAT_GEM_INFO")
 	
 	-- Defaults
-	for _, color in pairs(L["TYPES"]) do
+	for _, color in pairs(L["COLORS"]) do
 		table.insert(gemCount, {color = color, count = 0})
 		gemStats[color] = {}
 	end
@@ -73,7 +73,6 @@ function GemQuota:UpdatePaperdollGems()
 	end
 
 	local id = 1
-	local row, label, stat
 
 	-- Meta gem status
 	local row = getglobal("PlayerStatFrameRight" .. id)
@@ -203,7 +202,7 @@ function GemQuota:ParseMeta(...)
 		end
 
 		-- Check for an inactive bonus
-		if(string.match(text, "^|cff808080")) then
+		if( string.match(text, "^|cff808080") ) then
 			metaGem.status = "inactive"
 		end
 	end
@@ -219,14 +218,16 @@ function GemQuota:ScanGem(itemLink)
 		return
 	end
 	
+	local gemType = select(7, GetItemInfo(itemLink))
+
 	-- Check if it's a meta gem
-	if( select(7, GetItemInfo(itemLink)) == "Meta" ) then
-		self:ParseMeta(string.split("\n", getglobal("gemCountTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()))
+	if( gemType == L["Meta"] ) then
+		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()))
 		return
 	end
 	
 	-- Stats will always be the second to last row
-	local text = string.lower(getglobal("gemCountTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText())
+	local text = string.lower(getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText())
 		
 	-- Figure out stats
 	local matchFound
@@ -303,7 +304,6 @@ function GemQuota:ScanEquip()
 		end
 	end
 	
-	-- Show the one with most gem things
 	table.sort(gemCount, sortGems)
 end
 
