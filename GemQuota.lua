@@ -253,7 +253,7 @@ function GemQuota:ScanGem(itemLink)
 	end
 		
 	-- Increment gem total counts
-	local gemTypes = getglobal("gemCountTooltipTextLeft" .. self.tooltip:NumLines()):GetText()
+	local gemTypes = getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines()):GetText()
 	for _, data in pairs(gemCount) do
 		if( string.match(gemTypes, data.color) ) then
 			data.count = data.count + 1
