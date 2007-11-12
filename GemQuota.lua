@@ -24,7 +24,7 @@ local slots = {"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", 
 		"Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot"}
 
 function GemQuota:Print(msg)
-	DEFAULT_CHAT_FRAME:AddMessage("|cFF33FF99GemQuata|r: " .. msg)
+	DEFAULT_CHAT_FRAME:AddMessage("|cFF33FF99Gem Quata|r: " .. msg)
 end
 
 function GemQuota:Enable()

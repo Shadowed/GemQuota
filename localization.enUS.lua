@@ -72,5 +72,11 @@ GemQuotaLocals = {
 	["Requires at least ([0-9]+) (.+) gems"] = "Requires at least ([0-9]+) (.+) gems",
 	
 	-- Gem types
-	["TYPES"] = {"Red", "Blue", "Yellow"}
+	["COLORS"] = {"Red", "Blue", "Yellow"},
+	
+	-- Both fields need to be localized
+	["Purple"] = {"Red", "Blue"},
+	["Green"] = {"Blue", "Yellow"},
+	["Orange"] = {"Red", "Yellow"},
+	["Prismatic"] = {"Red", "Blue", "Yellow"},
 }	
