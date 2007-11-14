@@ -240,10 +240,6 @@ function GemQuota:ScanGem(itemLink)
 				colorMatch = true
 			end
 		end
-		
-		if( colorMatch ) then
-			break
-		end
 	end
 	
 	-- Just in-case a new format was added that breaks this
