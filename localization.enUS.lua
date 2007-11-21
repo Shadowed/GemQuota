@@ -64,12 +64,15 @@ GemQuotaLocals = {
 	
 	["At least %d %s, have %d."] = "At least %d %s, have %d.",
 	["More %s than %s, have %d %s and %d %s."] = "More %s than %s, have %d %s and %d %s.",
+	["Exactly %d %s, have %d."] = "Exactly %d %s, have %d.",
+	["Exactly %d %s, only have %d."] = "Exactly %d %s, only have %d.",
 	
 	["At least %d %s, only have %d."] = "At least %d %s, only have %d.",
 	["More %s than %s, only have %d %s and %d %s."] = "More %s than %s, only have %d %s and %d %s.",
 	
 	["Requires more (.+) gems than (.+) gems"] = "Requires more (.+) gems than (.+) gems",
 	["Requires at least ([0-9]+) (.+) gems"] = "Requires at least ([0-9]+) (.+) gems",
+	["Requires exactly ([0-9]+) (.+) gems"] = "Requires exactly ([0-9]+) (.+) gems",
 	
 	-- Gem types
 	["COLORS"] = {"Red", "Blue", "Yellow"},

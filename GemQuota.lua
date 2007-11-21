@@ -81,7 +81,7 @@ function GemQuota:UpdatePaperdollGems()
 
 	label:SetText(L["Meta"])
 	stat:SetText(L[metaGem.status])
-
+	
 	if( metaGem.status ~= "none" ) then	
 		row.tooltip = L["Requirements"]
 	
@@ -104,7 +104,7 @@ function GemQuota:UpdatePaperdollGems()
 					reqs = reqs .. string.format(L["More %s than %s, only have %d %s and %d %s."], req.more, req.than, moreCount, req.more, thanCount, req.than) .. "\n"
 				end
 			
-			elseif( req.type == "least" ) then
+			elseif( req.type == "least" or req.type == "exact" ) then
 				local haveCount = 0
 				for _, gem in pairs(gemCount) do
 					if( gem.color == req.color ) then
@@ -114,9 +114,17 @@ function GemQuota:UpdatePaperdollGems()
 				end
 				
 				if( metaGem.status == "active" ) then
-					reqs = reqs .. string.format(L["At least %d %s, have %d."], req.need, req.color, haveCount) .. "\n"
+					if( req.type == "least" ) then
+						reqs = reqs .. string.format(L["At least %d %s, have %d."], req.need, req.color, haveCount) .. "\n"
+					else
+						reqs = reqs .. string.format(L["Exactly %d %s, have %d."], req.need, req.color, haveCount) .. "\r"
+					end
 				else
-					reqs = reqs .. string.format(L["At least %d %s, only have %d."], req.need, req.color, haveCount) .. "\n"
+					if( req.type == "least" ) then
+						reqs = reqs .. string.format(L["At least %d %s, only have %d."], req.need, req.color, haveCount) .. "\n"
+					else
+						reqs = reqs .. string.format(L["Exactly %d %s, only have %d."], req.need, req.color, haveCount) .. "\r"
+					end
 				end
 			end
 		end
@@ -195,6 +203,10 @@ function GemQuota:ParseMeta(...)
 		if( string.match(text, L["Requires more (.+) gems than (.+) gems"]) ) then
 			local more, than = string.match(text, L["Requires more (.+) gems than (.+) gems"])
 			table.insert(metaGem.reqs, {type = "more", more = more, than = than})
+		
+		elseif( string.match(text, L["Requires exactly ([0-9]+) (.+) gems"]) ) then
+			local req, color = string.match(text, L["Requires exactly ([0-9]+) (.+) gems"])
+			table.insert(metaGem.reqs, {type = "exact", need = req, color = color})
 
 		elseif( string.match(text, L["Requires at least ([0-9]+) (.+) gems"]) ) then
 			local req, color = string.match(text, L["Requires at least ([0-9]+) (.+) gems"])
@@ -219,7 +231,7 @@ function GemQuota:ScanGem(itemLink)
 	end
 	
 	local gemType = select(7, GetItemInfo(itemLink))
-
+	
 	-- Check if it's a meta gem
 	if( gemType == L["Meta"] ) then
 		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()))
@@ -299,7 +311,7 @@ function GemQuota:ScanEquip()
 			end
 		end
 	end
-	
+
 	table.sort(gemCount, sortGems)
 end
 
