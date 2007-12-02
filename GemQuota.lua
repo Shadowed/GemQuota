@@ -117,13 +117,13 @@ function GemQuota:UpdatePaperdollGems()
 					if( req.type == "least" ) then
 						reqs = reqs .. string.format(L["At least %d %s, have %d."], req.need, req.color, haveCount) .. "\n"
 					else
-						reqs = reqs .. string.format(L["Exactly %d %s, have %d."], req.need, req.color, haveCount) .. "\r"
+						reqs = reqs .. string.format(L["Exactly %d %s, have %d."], req.need, req.color, haveCount) .. "\n"
 					end
 				else
 					if( req.type == "least" ) then
 						reqs = reqs .. string.format(L["At least %d %s, only have %d."], req.need, req.color, haveCount) .. "\n"
 					else
-						reqs = reqs .. string.format(L["Exactly %d %s, only have %d."], req.need, req.color, haveCount) .. "\r"
+						reqs = reqs .. string.format(L["Exactly %d %s, only have %d."], req.need, req.color, haveCount) .. "\n"
 					end
 				end
 			end
@@ -196,9 +196,8 @@ end
 
 function GemQuota:ParseMeta(...)
 	metaGem.status = "active"
-
 	for i=1, select("#", ...) do
-		local text = string.trim(select(i, ...))
+		local text = string.trim((select(i, ...)))
 		
 		if( string.match(text, L["Requires more (.+) gems than (.+) gems"]) ) then
 			local more, than = string.match(text, L["Requires more (.+) gems than (.+) gems"])
