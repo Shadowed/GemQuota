@@ -61,6 +61,16 @@ function GemQuota:Enable()
 end
 
 function GemQuota:UpdatePaperdollStats(prefix)
+	if( prefix == "PLAYERSTAT_MELEE_COMBAT" ) then
+		if( PLAYERSTAT_RIGHTDROPDOWN_SELECTION == prefix ) then
+			getglobal("PlayerStatFrameRight5"):Show()
+		end
+		
+		if( PLAYERSTAT_LEFTDROPDOWN_SELECTION == prefix ) then
+			getglobal("PlayerStatFrameLeft5"):Show()
+		end
+	end
+	
 	if( prefix == "PLAYERSTAT_GEM_INFO" ) then
 		GemQuota:UpdatePaperdollGems()
 	end
