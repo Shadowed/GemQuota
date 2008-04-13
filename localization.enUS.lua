@@ -12,6 +12,7 @@ GemQuotaLocals = {
 	["Spell Hit"] = "Spell Hit",
 	["Melee Hit"] = "Melee Hit",
 	["Defense Rating"] = "Defense Rating",
+	["Spell Haste"] = "Spell Haste",
 	["Parry Rating"] = "Parry Rating",
 	["Resilience Rating"] = "Resilience Rating",
 	
@@ -45,6 +46,7 @@ GemQuotaLocals = {
 			["([0-9]+) resilience"] = "Resilience Rating",
 			["([0-9]+) hit rating"] = "Melee Hit",
 			["([0-9]+) crit"] = "Melee Crit",
+			["([0-9]+) spell haste"] = "Spell Haste",
 		},
 		["Prismatic"] = {
 			["([0-9]+) resist"] = "All Resist",

@@ -16,6 +16,7 @@ local ratings = {
 	[L["Spell Crit"]] = 14,
 	[L["Spell Hit"]] = 8,
 	[L["Resilience Rating"]] = 25,
+	[L["Spell Haste"]] = 10,
 }
 
 -- One day, tabards will be socketable
