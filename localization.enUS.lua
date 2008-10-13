@@ -7,12 +7,10 @@ GemQuotaLocals = {
 	["Failed to match %s no stats found. Please report the gem name to the comments at WoWInterface.com so this can be fixed."] = "Failed to match %s no stats found. Please report the gem name to the comments at WoWInterface.com so this can be fixed.",
 	
 	["Dodge Rating"] = "Dodge Rating",
-	["Spell Crit"] = "Spell Crit",
-	["Melee Crit"] = "Melee Crit",
-	["Spell Hit"] = "Spell Hit",
-	["Melee Hit"] = "Melee Hit",
+	["Haste Rating"] = "Haste Rating",
+	["Crit Rating"] = "Crit Rating",
+	["Hit Rating"] = "Hit Rating",
 	["Defense Rating"] = "Defense Rating",
-	["Spell Haste"] = "Spell Haste",
 	["Parry Rating"] = "Parry Rating",
 	["Resilience Rating"] = "Resilience Rating",
 	
@@ -22,14 +20,15 @@ GemQuotaLocals = {
 		-- The gem text should be in lower case (as it's case-insensitive)
 		-- It doesn't have to be the full text, but enough for a unique match
 		["Red"] = {
+			["([0-9]+) spell power"] = "Spell Power",
 			["([0-9]+) strength"] = "Strength",
 			["([0-9]+) attack"] = "Attack Power",
 			["([0-9]+) agility"] = "Agility",
 			["([0-9]+) healing"] = "Healing",
-			["([0-9]+) spell damage"] = "Spell Damage",
-			["spell damage %+([0-9]+)"] = "Spell Damage",
 			["([0-9]+) parry rating"] = "Parry Rating",
 			["([0-9]+) dodge rating"] = "Dodge Rating",
+			["([0-9]+) armor penetration"] = "Armor Penetration",
+			["([0-9]+) expertise"] = "Expertise",
 		},
 		["Blue"] = {
 			["([0-9]+) stamina"] = "Stamina",
@@ -39,17 +38,19 @@ GemQuotaLocals = {
 			["([0-9]+) spell penet"] = "Spell Penetration",
 		},
 		["Yellow"] = {
-			["([0-9]+) spell crit"] = "Spell Crit",
 			["([0-9]+) intellect"] = "Intellect",
 			["([0-9]+) defense rating"] = "Defense Rating",
-			["([0-9]+) spell hit"] = "Spell Hit",
 			["([0-9]+) resilience"] = "Resilience Rating",
-			["([0-9]+) hit rating"] = "Melee Hit",
-			["([0-9]+) crit"] = "Melee Crit",
-			["([0-9]+) spell haste"] = "Spell Haste",
+			["([0-9]+) haste rating"] = "Haste Rating",
+			["([0-9]+) hit rating"] = "Hit Rating",
+			["([0-9]+) critical strike"] = "Crit Rating",
 		},
+		-- Not sure how I want to handle Prismatic BOP gems yet, going to stay with this method for now I think
 		["Prismatic"] = {
 			["([0-9]+) resist"] = "All Resist",
+			["50 Attack Power"] = "Attack Power",
+			["45 Stamina"] = "Stamina",
+			["([0-9]+) all stats"] = "All Stats",
 		},
 	},
 			

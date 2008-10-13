@@ -1,4 +1,4 @@
-## Interface: 20300
+## Interface: 30000
 ## Title: Gem Quota
 ## Version: $Revison$
 ## Author: Mayen

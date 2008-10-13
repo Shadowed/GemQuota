@@ -11,12 +11,10 @@ local ratings = {
 	[L["Dodge Rating"]] = 12,
 	[L["Parry Rating"]] = 15,
 	[L["Defense Rating"]] = 1.5,
-	[L["Melee Hit"]] = 10,
-	[L["Melee Crit"]] = 14,
-	[L["Spell Crit"]] = 14,
-	[L["Spell Hit"]] = 8,
+	[L["Hit Rating"]] = 1, --??
+	[L["Crit Rating"]] = 1, --??
+	[L["Haste Rating"]] = 1, --??
 	[L["Resilience Rating"]] = 25,
-	[L["Spell Haste"]] = 10,
 }
 
 -- One day, tabards will be socketable
@@ -41,9 +39,6 @@ function GemQuota:Enable()
 		gemStats[color] = {}
 	end
 	
-	-- Hook everything
-	hooksecurefunc("UpdatePaperdollStats", self.UpdatePaperdollStats)
-
 	-- Rather do rescanning when the paper doll frame is shown
 	-- because doing a rescan while we're in combat can be bad
 	-- due to small lag
@@ -61,25 +56,35 @@ function GemQuota:Enable()
 	end)
 end
 
-function GemQuota:UpdatePaperdollStats(prefix)
-	if( prefix == "PLAYERSTAT_MELEE_COMBAT" ) then
-		if( PLAYERSTAT_RIGHTDROPDOWN_SELECTION == prefix ) then
-			getglobal("PlayerStatFrameRight5"):Show()
-		end
-		
-		if( PLAYERSTAT_LEFTDROPDOWN_SELECTION == prefix ) then
+local Orig_UpdatePaperdollStats = UpdatePaperdollStats
+local rightSelection, leftSelection
+function UpdatePaperdollStats(prefix, index, ...)
+	Orig_UpdatePaperdollStats(prefix, index, ...)
+	
+	if( prefix == "PlayerStatFrameLeft" ) then
+		leftSelection = index
+	elseif( prefix == "PlayerStatFrameRight" ) then
+		rightSelection = index
+	end
+	
+	if( index == "PLAYERSTAT_MELEE_COMBAT" ) then
+		if( leftSelection == prefix ) then
 			getglobal("PlayerStatFrameLeft5"):Show()
+		end
+
+		if( rightSelection == prefix ) then
+			getglobal("PlayerStatFrameRight5"):Show()
 		end
 	end
 	
-	if( prefix == "PLAYERSTAT_GEM_INFO" ) then
+	if( index == "PLAYERSTAT_GEM_INFO" ) then
 		GemQuota:UpdatePaperdollGems()
 	end
 end
 
 function GemQuota:UpdatePaperdollGems()
 	-- Don't update it if it's not our current selection
-	if( ( not PLAYERSTAT_RIGHTDROPDOWN_SELECTION and not PLAYERSTAT_LEFTDROPDOWN_SELECTION ) or ( PLAYERSTAT_RIGHTDROPDOWN_SELECTION ~= "PLAYERSTAT_GEM_INFO" and PLAYERSTAT_LEFTDROPDOWN_SELECTION ~= "PLAYERSTAT_GEM_INFO" ) ) then
+	if( ( not rightSelection and not leftSelection ) or ( rightSelection ~= "PLAYERSTAT_GEM_INFO" and leftSelection ~= "PLAYERSTAT_GEM_INFO" ) ) then
 		return
 	end
 
