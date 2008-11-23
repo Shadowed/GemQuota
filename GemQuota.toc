@@ -3,6 +3,7 @@
 ## Version: $Revison$
 ## Author: Mayen
 ## Notes: Shows number of gems in the character screen, including stats (and rating percentages) along with meta gem info
+## SavedVariables: GemQuotaDB
 
 localization.enUS.lua
 localization.deDE.lua

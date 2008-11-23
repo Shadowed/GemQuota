@@ -7,15 +7,17 @@ local gemStats = {}
 local metaGem = {status = "none", reqs = {}}
 
 -- Base rating info
+--[[
 local ratings = {
-	[L["Dodge Rating"]] = 12,
-	[L["Parry Rating"]] = 15,
-	[L["Defense Rating"]] = 1.5,
-	[L["Hit Rating"]] = 1, --??
-	[L["Crit Rating"]] = 1, --??
-	[L["Haste Rating"]] = 1, --??
-	[L["Resilience Rating"]] = 25,
+	[L["Dodge Rating"] ] = 39.35,
+	[L["Parry Rating"] ] = 49.18,
+	[L["Defense Rating"] ] = 1.5,
+	[L["Hit Rating"] ] = {spell = 26.23, melee = 32.78},
+	[L["Crit Rating"] ] = 45.91,
+	[L["Haste Rating"] ] = 32.79,
+	[L["Resilience Rating"] ] = 25,
 }
+]]
 
 -- One day, tabards will be socketable
 local slots = {"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot",
@@ -33,6 +35,9 @@ function GemQuota:Enable()
 	PLAYERSTAT_GEM_INFO = L["Gem Info"]
 	table.insert(PLAYERSTAT_DROPDOWN_OPTIONS, "PLAYERSTAT_GEM_INFO")
 	
+	
+	GemQuotaDB = GemQuotaDB or {reported = {}}
+	
 	-- Defaults
 	for _, color in pairs(L["COLORS"]) do
 		table.insert(gemCount, {color = color, count = 0})
@@ -43,6 +48,11 @@ function GemQuota:Enable()
 	-- because doing a rescan while we're in combat can be bad
 	-- due to small lag
 	PaperDollFrame:HookScript("OnShow", function()
+		if( InCombatLockdown() ) then
+			GemQuota.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+			return
+		end
+		
 		GemQuota.ScanEquip(GemQuota)
 		GemQuota.UpdatePaperdollGems(GemQuota)
 
@@ -157,7 +167,7 @@ function GemQuota:UpdatePaperdollGems()
 	row:Show()
 	
 	local playerLevel = UnitLevel("player")
-	
+		
 	-- Now show total gem # and the tooltips for stats
 	for _, gem in pairs(gemCount) do
 		id = id + 1
@@ -175,6 +185,7 @@ function GemQuota:UpdatePaperdollGems()
 		-- Parse out the tooltip
 		local list = {}
 		for stat, total in pairs(gemStats[gem.color]) do
+			--[[
 			-- Only show rating info if we're 60 or higher, not that it matters
 			-- but just to be safe
 			if( ratings[stat] and playerLevel >= 60 ) then
@@ -194,8 +205,11 @@ function GemQuota:UpdatePaperdollGems()
 			else
 				table.insert(list, string.format("%s: %s", stat, GREEN_FONT_COLOR_CODE .. total .. FONT_COLOR_CODE_CLOSE))
 			end
+			]]
+		
+			table.insert(list, string.format("%s: %s", stat, GREEN_FONT_COLOR_CODE .. total .. FONT_COLOR_CODE_CLOSE))
 		end
-
+		
 		if( #(list) > 0 ) then
 			row.tooltip2 = table.concat(list, "\n")
 		elseif( gem.count > 0 ) then
@@ -206,7 +220,7 @@ function GemQuota:UpdatePaperdollGems()
 		end
 	end
 	
-	PlayerStatFrameRight5:Hide()
+	--PlayerStatFrameRight5:Hide()
 	PlayerStatFrameRight6:Hide()
 end
 
@@ -235,6 +249,7 @@ function GemQuota:ParseMeta(...)
 	end
 end
 
+--/script GemQuota:ScanGem((select(2, GetItemInfo(42142))))
 function GemQuota:ScanGem(itemLink)
 	-- We have to clear lines because if we scan the same link
 	-- it'll close the tooltip instead and error
@@ -246,32 +261,51 @@ function GemQuota:ScanGem(itemLink)
 	end
 	
 	local gemType = select(7, GetItemInfo(itemLink))
-	
+	local isDragons = string.match((GetItemInfo(itemLink)), L["(.+) Dragon's Eye"]) and true or false
+		
 	-- Check if it's a meta gem
 	if( gemType == L["Meta"] ) then
 		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()))
 		return
 	end
 	
-	-- Stats will always be the second to last row
-	local text = string.lower(getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText())
+	-- Every gem BESIDES Dragon's Eye (Fuck Blizzard) is the line before last, for Dragon's Eye it's 2 lines back
+	local offset = isDragons and 2 or 1
+	local text = string.lower(getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - offset):GetText())
 		
 	-- Figure out stats
 	local matchFound
 	for color, tests in pairs(L["MATCHES"]) do
-		local colorMatch
 		for match, stat in pairs(tests) do
 			if( string.match(text, match) ) then
+				-- Instead of splitting off the stats we find from the Dragon's Eye into it's "real" color
+				-- we will move it into the Prismatic category regardless
+				if( isDragons ) then
+					color = "Prismatic"
+				end
+				
 				gemStats[color][stat] = (gemStats[color][stat] or 0) + tonumber(string.match(text, match))
 				matchFound = true
-				colorMatch = true
 			end
 		end
 	end
 	
 	-- Just in-case a new format was added that breaks this
 	if( not matchFound ) then
-		self:Print(string.format(L["Failed to match %s no stats found. Please report the gem name to the comments at WoWInterface.com so this can be fixed."], itemLink))
+		if( not GemQuotaDB.reported[itemLink] ) then
+			GemQuotaDB.reported[itemLink] = true
+			self:Print(string.format(L["Failed to match %s no stats found. Please report the gem name to the comments at WoWInterface.com so this can be fixed."], itemLink))
+		end
+		return
+	end
+	
+	-- Increment the Prismatic count, not the main type
+	if( gemType == L["Prismatic"] ) then
+		for _, data in pairs(gemCount) do
+			if( data.color == L["Prismatic"] ) then
+				data.count = data.count + 1
+			end
+		end
 		return
 	end
 		
@@ -326,6 +360,8 @@ function GemQuota:ScanEquip()
 			end
 		end
 	end
+	
+	--GemQuota:ScanGem((select(2, GetItemInfo(42142))))
 
 	table.sort(gemCount, sortGems)
 end
@@ -334,9 +370,15 @@ GemQuota.frame = CreateFrame("Frame")
 GemQuota.frame:RegisterEvent("ADDON_LOADED")
 GemQuota.frame:SetScript("OnEvent", function(self, event, addon)
 	if( event == "ADDON_LOADED" and addon == "GemQuota" ) then
-		GemQuota.Enable(GemQuota)
-	elseif( event == "PLAYER_DAMAGE_DONE_MODS" or event == "UNIT_STATS" ) then
-		GemQuota.ScanEquip(GemQuota)
-		GemQuota.UpdatePaperdollGems(GemQuota)
+		GemQuota:Enable()
+		
+	elseif( event == "PLAYER_REGEN_ENABLED" ) then
+		GemQuota.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		GemQuota:ScanEquip()
+		GemQuota:UpdatePaperdollGems()
+		
+	elseif( event == "PLAYER_DAMAGE_DONE_MODS" or ( event == "UNIT_STATS" and addon == "player" ) ) then
+		GemQuota:ScanEquip()
+		GemQuota:UpdatePaperdollGems()
 	end
 end)
