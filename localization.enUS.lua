@@ -24,6 +24,7 @@ GemQuotaLocals = {
 		-- It doesn't have to be the full text, but enough for a unique match
 		["Red"] = {
 			["([0-9]+) spell power"] = "Spell Power",
+			["([0-9]+) spell damage"] = "Spell Power",
 			["([0-9]+) strength"] = "Strength",
 			["([0-9]+) attack"] = "Attack Power",
 			["([0-9]+) agility"] = "Agility",
@@ -52,6 +53,7 @@ GemQuotaLocals = {
 		["Prismatic"] = {
 			["([0-9]+) resist"] = "All Resist",
 			["([0-9]+) all stats"] = "All Stats",
+			["([0-9]+) to all stats"] = "All Stats",
 		},
 	},
 			

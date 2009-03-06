@@ -2,6 +2,7 @@ GemQuota = {}
 
 local L = GemQuotaLocals
 
+local leftSelection, rightSelection
 local gemCount = {}
 local gemStats = {}
 local metaGem = {status = "none", reqs = {}}
@@ -64,32 +65,29 @@ function GemQuota:Enable()
 		GemQuota.frame:UnregisterEvent("PLAYER_DAMAGE_DONE_MODS")
 		GemQuota.frame:UnregisterEvent("UNIT_STATS")
 	end)
-end
-
-local Orig_UpdatePaperdollStats = UpdatePaperdollStats
-local rightSelection, leftSelection
-function UpdatePaperdollStats(prefix, index, ...)
-	Orig_UpdatePaperdollStats(prefix, index, ...)
 	
-	if( prefix == "PlayerStatFrameLeft" ) then
-		leftSelection = index
-	elseif( prefix == "PlayerStatFrameRight" ) then
-		rightSelection = index
-	end
-	
-	if( index == "PLAYERSTAT_MELEE_COMBAT" ) then
-		if( leftSelection == prefix ) then
-			getglobal("PlayerStatFrameLeft5"):Show()
+	-- Update it with our custom selection
+	hooksecurefunc("UpdatePaperdollStats", function(prefix, index)
+		if( prefix == "PlayerStatFrameLeft" ) then
+			leftSelection = index
+		elseif( prefix == "PlayerStatFrameRight" ) then
+			rightSelection = index
 		end
 
-		if( rightSelection == prefix ) then
-			getglobal("PlayerStatFrameRight5"):Show()
+		if( index == "PLAYERSTAT_MELEE_COMBAT" ) then
+			if( leftSelection == prefix ) then
+				getglobal("PlayerStatFrameLeft5"):Show()
+			end
+
+			if( rightSelection == prefix ) then
+				getglobal("PlayerStatFrameRight5"):Show()
+			end
 		end
-	end
-	
-	if( index == "PLAYERSTAT_GEM_INFO" ) then
-		GemQuota:UpdatePaperdollGems()
-	end
+
+		if( index == "PLAYERSTAT_GEM_INFO" ) then
+			GemQuota:UpdatePaperdollGems()
+		end
+	end)
 end
 
 function GemQuota:UpdatePaperdollGems()
