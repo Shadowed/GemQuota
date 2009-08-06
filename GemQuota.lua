@@ -1,24 +1,8 @@
 GemQuota = {}
 
 local L = GemQuotaLocals
-
 local leftSelection, rightSelection
-local gemCount = {}
-local gemStats = {}
-local metaGem = {status = "none", reqs = {}}
-
--- Base rating info
---[[
-local ratings = {
-	[L["Dodge Rating"] ] = 39.35,
-	[L["Parry Rating"] ] = 49.18,
-	[L["Defense Rating"] ] = 1.5,
-	[L["Hit Rating"] ] = {spell = 26.23, melee = 32.78},
-	[L["Crit Rating"] ] = 45.91,
-	[L["Haste Rating"] ] = 32.79,
-	[L["Resilience Rating"] ] = 25,
-}
-]]
+local gemCount, gemStats, metaGem = {}, {}, {status = "none", reqs = {}}
 
 -- One day, tabards will be socketable
 local slots = {"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot",
@@ -36,15 +20,14 @@ function GemQuota:Enable()
 	PLAYERSTAT_GEM_INFO = L["Gem Info"]
 	table.insert(PLAYERSTAT_DROPDOWN_OPTIONS, "PLAYERSTAT_GEM_INFO")
 	
-	
 	GemQuotaDB = GemQuotaDB or {reported = {}}
 	
 	-- Defaults
-	for _, color in pairs(L["COLORS"]) do
+	for _, color in pairs(L.colors) do
 		table.insert(gemCount, {color = color, count = 0})
 		gemStats[color] = {}
 	end
-	
+		
 	-- Rather do rescanning when the paper doll frame is shown
 	-- because doing a rescan while we're in combat can be bad
 	-- due to small lag
@@ -54,11 +37,7 @@ function GemQuota:Enable()
 			return
 		end
 		
-		GemQuota.ScanEquip(GemQuota)
-		GemQuota.UpdatePaperdollGems(GemQuota)
-
-		GemQuota.frame:RegisterEvent("PLAYER_DAMAGE_DONE_MODS")
-		GemQuota.frame:RegisterEvent("UNIT_STATS")
+		GemQuota:Update()
 	end)
 	
 	PaperDollFrame:HookScript("OnHide", function()
@@ -67,32 +46,46 @@ function GemQuota:Enable()
 	end)
 	
 	-- Update it with our custom selection
-	hooksecurefunc("UpdatePaperdollStats", function(prefix, index)
-		if( prefix == "PlayerStatFrameLeft" ) then
-			leftSelection = index
-		elseif( prefix == "PlayerStatFrameRight" ) then
-			rightSelection = index
+	local Orig_UpdatePaperdollStats = UpdatePaperdollStats
+	UpdatePaperdollStats = function(...)
+		Orig_UpdatePaperdollStats(...)
+
+		if( GetCVar("playerStatLeftDropdown") == "PLAYERSTAT_MELEE_COMBAT" ) then
+			getglobal("PlayerStatFrameLeft5"):Show()
 		end
 
-		if( index == "PLAYERSTAT_MELEE_COMBAT" ) then
-			if( leftSelection == prefix ) then
-				getglobal("PlayerStatFrameLeft5"):Show()
-			end
-
-			if( rightSelection == prefix ) then
-				getglobal("PlayerStatFrameRight5"):Show()
-			end
+		if( GetCVar("playerStatRightDropdown") == "PLAYERSTAT_MELEE_COMBAT" ) then
+			getglobal("PlayerStatFrameRight5"):Show()
 		end
+		
+		GemQuota:UpdatePaperdollGems()
+	end
 
-		if( index == "PLAYERSTAT_GEM_INFO" ) then
-			GemQuota:UpdatePaperdollGems()
+	-- Make sure we do an update if it was loaded via AddonLoader
+	if( PaperDollFrame:IsVisible() ) then
+		self:Update()
+		
+		-- Do a text update too if we had one of them selected
+		if( GetCVar("playerStatLeftDropdown") == "PLAYERSTAT_GEM_INFO" ) then
+			UIDropDownMenu_SetText(PlayerStatFrameLeftDropDown, L["Gem Info"])
 		end
-	end)
+		
+		if( GetCVar("playerStatRightDropdown") == "PLAYERSTAT_GEM_INFO" ) then
+			UIDropDownMenu_SetText(PlayerStatFrameRightDropDown, L["Gem Info"])
+		end
+	end
+end
+
+function GemQuota:Update()
+	self:ScanEquip()
+	self:UpdatePaperdollGems()
+
+	self.frame:RegisterEvent("PLAYER_DAMAGE_DONE_MODS")
+	self.frame:RegisterEvent("UNIT_STATS")
 end
 
 function GemQuota:UpdatePaperdollGems()
-	-- Don't update it if it's not our current selection
-	if( ( not rightSelection and not leftSelection ) or ( rightSelection ~= "PLAYERSTAT_GEM_INFO" and leftSelection ~= "PLAYERSTAT_GEM_INFO" ) ) then
+	if( GetCVar("playerStatLeftDropdown") ~= "PLAYERSTAT_GEM_INFO" and GetCVar("playerStatRightDropdown") ~= "PLAYERSTAT_GEM_INFO" ) then
 		return
 	end
 
@@ -104,11 +97,11 @@ function GemQuota:UpdatePaperdollGems()
 	local stat = getglobal("PlayerStatFrameRight" .. id .. "StatText")
 
 	label:SetText(L["Meta"])
-	stat:SetText(L[metaGem.status])
+	stat:SetText(L.status[metaGem.status])
 	
 	if( metaGem.status ~= "none" ) then	
 		row.tooltip = L["Requirements"]
-	
+			
 		local reqs = ""
 		for _, req in pairs(metaGem.reqs) do
 			if( req.type == "more" ) then
@@ -163,9 +156,7 @@ function GemQuota:UpdatePaperdollGems()
 	
 	row.tooltip = HIGHLIGHT_FONT_COLOR_CODE .. row.tooltip .. FONT_COLOR_CODE_CLOSE
 	row:Show()
-	
-	local playerLevel = UnitLevel("player")
-		
+			
 	-- Now show total gem # and the tooltips for stats
 	for _, gem in pairs(gemCount) do
 		id = id + 1
@@ -183,28 +174,6 @@ function GemQuota:UpdatePaperdollGems()
 		-- Parse out the tooltip
 		local list = {}
 		for stat, total in pairs(gemStats[gem.color]) do
-			--[[
-			-- Only show rating info if we're 60 or higher, not that it matters
-			-- but just to be safe
-			if( ratings[stat] and playerLevel >= 60 ) then
-				local rating = 0
-				if( playerLevel >= 70 ) then
-					rating = total / (ratings[stat] * (playerLevel + 12) / 52)
-				else
-					rating = total / (ratings[stat] * 82 / (262 - 3 * playerLevel))
-				end
-				
-				rating = string.format("%.2f%%", rating)
-				if( stat == L["Resilience Rating"] ) then
-					rating = "-" .. rating
-				end
-				
-				table.insert(list, string.format("%s: %s (%s)", stat, GREEN_FONT_COLOR_CODE .. total .. FONT_COLOR_CODE_CLOSE, GREEN_FONT_COLOR_CODE .. rating .. FONT_COLOR_CODE_CLOSE))
-			else
-				table.insert(list, string.format("%s: %s", stat, GREEN_FONT_COLOR_CODE .. total .. FONT_COLOR_CODE_CLOSE))
-			end
-			]]
-		
 			table.insert(list, string.format("%s: %s", stat, GREEN_FONT_COLOR_CODE .. total .. FONT_COLOR_CODE_CLOSE))
 		end
 		
@@ -217,8 +186,7 @@ function GemQuota:UpdatePaperdollGems()
 			row.tooltip2 = nil
 		end
 	end
-	
-	--PlayerStatFrameRight5:Hide()
+
 	PlayerStatFrameRight6:Hide()
 end
 
@@ -226,20 +194,20 @@ function GemQuota:ParseMeta(...)
 	metaGem.status = "active"
 	for i=1, select("#", ...) do
 		local text = string.trim((select(i, ...)))
-		
-		if( string.match(text, L["Requires more (.+) gems than (.+) gems"]) ) then
-			local more, than = string.match(text, L["Requires more (.+) gems than (.+) gems"])
+
+		if( string.match(text, L["Requires more (.+) gems than (.+) gem"]) ) then
+			local more, than = string.match(text, L["Requires more (.+) gems than (.+) gem"])
 			table.insert(metaGem.reqs, {type = "more", more = more, than = than})
 		
-		elseif( string.match(text, L["Requires exactly ([0-9]+) (.+) gems"]) ) then
-			local req, color = string.match(text, L["Requires exactly ([0-9]+) (.+) gems"])
+		elseif( string.match(text, L["Requires exactly ([0-9]+) (.+) gem"]) ) then
+			local req, color = string.match(text, L["Requires exactly ([0-9]+) (.+) gem"])
 			table.insert(metaGem.reqs, {type = "exact", need = req, color = color})
 
-		elseif( string.match(text, L["Requires at least ([0-9]+) (.+) gems"]) ) then
-			local req, color = string.match(text, L["Requires at least ([0-9]+) (.+) gems"])
+		elseif( string.match(text, L["Requires at least ([0-9]+) (.+) gem"]) ) then
+			local req, color = string.match(text, L["Requires at least ([0-9]+) (.+) gem"])
 			table.insert(metaGem.reqs, {type = "least", need = req, color = color})
 		end
-
+			
 		-- Check for an inactive bonus
 		if( string.match(text, "^|cff808080") ) then
 			metaGem.status = "inactive"
@@ -259,21 +227,19 @@ function GemQuota:ScanGem(itemLink)
 	end
 	
 	local gemType = select(7, GetItemInfo(itemLink))
-	local isDragons = string.match((GetItemInfo(itemLink)), L["(.+) Dragon's Eye"]) and true or false
 		
 	-- Check if it's a meta gem
 	if( gemType == L["Meta"] ) then
-		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()))
+		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 2):GetText()))
 		return
 	end
 	
-	-- Every gem BESIDES Dragon's Eye (Fuck Blizzard) is the line before last, for Dragon's Eye it's 2 lines back
-	local offset = isDragons and 2 or 1
+	local offset = isDragons and 3 or 2
 	local text = string.lower(getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - offset):GetText())
 		
 	-- Figure out stats
 	local matchFound
-	for color, tests in pairs(L["MATCHES"]) do
+	for color, tests in pairs(L.patterns) do
 		for match, stat in pairs(tests) do
 			if( string.match(text, match) ) then
 				-- Instead of splitting off the stats we find from the Dragon's Eye into it's "real" color
@@ -296,6 +262,8 @@ function GemQuota:ScanGem(itemLink)
 		end
 		return
 	end
+
+	GemQuotaDB.reported[itemLink] = nil
 	
 	-- Increment the Prismatic count, not the main type
 	if( gemType == L["Prismatic"] ) then
@@ -308,7 +276,7 @@ function GemQuota:ScanGem(itemLink)
 	end
 		
 	-- Increment gem total counts
-	local gemTypes = getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines()):GetText()
+	local gemTypes = getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()
 	for _, data in pairs(gemCount) do
 		if( string.match(gemTypes, data.color) ) then
 			data.count = data.count + 1
@@ -359,8 +327,6 @@ function GemQuota:ScanEquip()
 		end
 	end
 	
-	--GemQuota:ScanGem((select(2, GetItemInfo(42142))))
-
 	table.sort(gemCount, sortGems)
 end
 
@@ -369,12 +335,10 @@ GemQuota.frame:RegisterEvent("ADDON_LOADED")
 GemQuota.frame:SetScript("OnEvent", function(self, event, addon)
 	if( event == "ADDON_LOADED" and addon == "GemQuota" ) then
 		GemQuota:Enable()
-		
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		GemQuota.frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		GemQuota:ScanEquip()
 		GemQuota:UpdatePaperdollGems()
-		
 	elseif( event == "PLAYER_DAMAGE_DONE_MODS" or ( event == "UNIT_STATS" and addon == "player" ) ) then
 		GemQuota:ScanEquip()
 		GemQuota:UpdatePaperdollGems()
