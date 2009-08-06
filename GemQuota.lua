@@ -1,8 +1,8 @@
 GemQuota = {}
 
 local L = GemQuotaLocals
-local leftSelection, rightSelection
 local gemCount, gemStats, metaGem = {}, {}, {status = "none", reqs = {}}
+local _G = getfenv(0)
 
 -- One day, tabards will be socketable
 local slots = {"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot",
@@ -51,11 +51,11 @@ function GemQuota:Enable()
 		Orig_UpdatePaperdollStats(...)
 
 		if( GetCVar("playerStatLeftDropdown") == "PLAYERSTAT_MELEE_COMBAT" ) then
-			getglobal("PlayerStatFrameLeft5"):Show()
+			_G["PlayerStatFrameLeft5"]:Show()
 		end
 
 		if( GetCVar("playerStatRightDropdown") == "PLAYERSTAT_MELEE_COMBAT" ) then
-			getglobal("PlayerStatFrameRight5"):Show()
+			_G["PlayerStatFrameRight5"]:Show()
 		end
 		
 		GemQuota:UpdatePaperdollGems()
@@ -92,9 +92,9 @@ function GemQuota:UpdatePaperdollGems()
 	local id = 1
 
 	-- Meta gem status
-	local row = getglobal("PlayerStatFrameRight" .. id)
-	local label = getglobal("PlayerStatFrameRight" .. id .. "Label")
-	local stat = getglobal("PlayerStatFrameRight" .. id .. "StatText")
+	local row = _G["PlayerStatFrameRight" .. id]
+	local label = _G["PlayerStatFrameRight" .. id .. "Label"]
+	local stat = _G["PlayerStatFrameRight" .. id .. "StatText"]
 
 	label:SetText(L["Meta"])
 	stat:SetText(L.status[metaGem.status])
@@ -161,9 +161,9 @@ function GemQuota:UpdatePaperdollGems()
 	for _, gem in pairs(gemCount) do
 		id = id + 1
 		
-		local row = getglobal("PlayerStatFrameRight" .. id)
-		local label = getglobal("PlayerStatFrameRight" .. id .. "Label")
-		local stat = getglobal("PlayerStatFrameRight" .. id .. "StatText")
+		local row = _G["PlayerStatFrameRight" .. id]
+		local label = _G["PlayerStatFrameRight" .. id .. "Label"]
+		local stat = _G["PlayerStatFrameRight" .. id .. "StatText"]
 
 		label:SetText(gem.color)
 		stat:SetText(gem.count)
@@ -230,12 +230,12 @@ function GemQuota:ScanGem(itemLink)
 		
 	-- Check if it's a meta gem
 	if( gemType == L["Meta"] ) then
-		self:ParseMeta(string.split("\n", getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 2):GetText()))
+		self:ParseMeta(string.split("\n", _G["GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 2]:GetText()))
 		return
 	end
 	
 	local offset = isDragons and 3 or 2
-	local text = string.lower(getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - offset):GetText())
+	local text = string.lower(_G["GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - offset]:GetText())
 		
 	-- Figure out stats
 	local matchFound
@@ -276,7 +276,7 @@ function GemQuota:ScanGem(itemLink)
 	end
 		
 	-- Increment gem total counts
-	local gemTypes = getglobal("GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1):GetText()
+	local gemTypes = _G["GemQuotaTooltipTextLeft" .. self.tooltip:NumLines() - 1]:GetText()
 	for _, data in pairs(gemCount) do
 		if( string.match(gemTypes, data.color) ) then
 			data.count = data.count + 1
