@@ -1,12 +1,11 @@
-## Interface: 30000
+## Interface: 30200
 ## Title: Gem Quota
-## Version: $Revison$
-## Author: Mayen
 ## Notes: Shows number of gems in the character screen, including stats (and rating percentages) along with meta gem info
+## Author: Shadowed
+## LoadManagers: AddonLoader
+## X-LoadOn-Execute: PaperDollFrame:HookScript("OnShow", function() if( not GemQuota ) then AddonLoader:LoadAddOn("GemQuota") end end)
 ## SavedVariables: GemQuotaDB
 
 localization.enUS.lua
-localization.deDE.lua
-localization.frFR.lua
 
 GemQuota.lua
